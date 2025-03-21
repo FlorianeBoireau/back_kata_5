@@ -13,10 +13,10 @@ final class MenuController extends AbstractController
     #[Route('/menus', name: 'app_menu', methods: ["GET"])]
     public function index(EntityManagerInterface $entityManager): Response
     {
-       // Récupérer les annonces depuis la base de données
+        // Récupérer les menus depuis la base de données
         $menus = $entityManager->getRepository(Menu::class)->findAll();
 
-       // Préparer les données pour la réponse JSON
+        // Préparer les données pour la réponse JSON
         $menusData = [];
         foreach ($menus as $menu) {
             $menusData[] = [
@@ -27,11 +27,30 @@ final class MenuController extends AbstractController
             ];
         }
 
-       // Retourner les données sous forme de JSON
+        // Retourner les données sous forme de JSON
         return $this->json($menusData);
     }
 
-    #[Route('/menus/menu-dummy-data', name:"menu-data")]
+    #[Route('/menus/{id}', name: 'app_menu_show', methods: ['GET'])]
+    public function show(EntityManagerInterface $entityManager, int $id): Response
+    {
+        $menu = $entityManager->getRepository(Menu::class)->find($id);
+
+        if (!$menu) {
+            throw $this->createNotFoundException('No menu found for id ' . $id);
+        }
+
+        $menuData = [
+            'id' => $menu->getId(),
+            'plate' => $menu->getPlate(),
+            'description' => $menu->getDescription(),
+            'image' => $menu->getImage(),
+        ];
+
+        return $this->json($menuData);
+    }
+
+    #[Route('/menus/menu-dummy-data', name: "menu-data")]
     public function addDummyData(EntityManagerInterface $entityManager): Response
     {
         $menuData = 7;
